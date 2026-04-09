@@ -1,4 +1,4 @@
-import { Star, ShoppingCart, Eye, Download, Wand2 } from 'lucide-react';
+import { Star, Eye, Download } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card } from './ui/card';
 import { Badge } from './ui/badge';
@@ -8,7 +8,6 @@ interface PromptCardProps {
   id: string;
   title: string;
   description: string;
-  price: number;
   rating: number;
   reviewCount: number;
   purchases: number;
@@ -20,7 +19,6 @@ export function PromptCard({
   id,
   title,
   description,
-  price,
   rating,
   reviewCount,
   purchases,
@@ -63,9 +61,6 @@ export function PromptCard({
 
         {/* Footer */}
         <div className="flex items-center justify-between pt-4 border-t">
-          <div className="flex items-baseline gap-1">
-            <span className="text-2xl font-bold text-foreground">${price}</span>
-          </div>
           <div className="flex gap-2">
             <Button
               variant="outline"
@@ -76,8 +71,8 @@ export function PromptCard({
               Preview
             </Button>
             <Button size="sm" className="bg-primary hover:bg-primary/90">
-              <Wand2 className="h-4 w-4 mr-1" />
-              Add
+              <Download className="h-4 w-4 mr-1" />
+              Download
             </Button>
           </div>
         </div>

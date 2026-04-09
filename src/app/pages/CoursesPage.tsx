@@ -1,133 +1,123 @@
-import { FilterSidebar } from '../components/FilterSidebar';
-import { CourseCard } from '../components/CourseCard';
-import { Input } from '../components/ui/input';
-import { Button } from '../components/ui/button';
-import { Search, SlidersHorizontal } from 'lucide-react';
-import { useState } from 'react';
+import { FilterSidebar } from "../components/FilterSidebar"
+import { CourseCard } from "../components/CourseCard"
+import { Input } from "../components/ui/input"
+import { Button } from "../components/ui/button"
+import { Search, SlidersHorizontal, Loader2 } from "lucide-react"
+import { useState, useEffect } from "react"
+
+// Import API
+import { getCourses, CourseProps, CourseParams } from "../api/course"
+
+// Import Shadcn Pagination
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "../components/ui/pagination"
 
 export function CoursesPage() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [showFilters, setShowFilters] = useState(true);
+  // UI States
+  const [searchQuery, setSearchQuery] = useState("")
+  const [showFilters, setShowFilters] = useState(true)
 
-  const courses = [
-    {
-      id: '1',
-      title: 'Master ChatGPT Prompt Engineering',
-      instructor: 'Sarah Johnson',
-      description: 'Learn to craft powerful prompts that unlock ChatGPT\'s full potential',
-      price: 49.99,
-      rating: 4.9,
-      reviewCount: 567,
-      duration: '8h 30m',
-      students: 3421,
-      level: 'Beginner',
-      imageUrl: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=400&fit=crop',
-    },
-    {
-      id: '2',
-      title: 'Advanced Prompt Patterns & Frameworks',
-      instructor: 'Michael Chen',
-      description: 'Master chain-of-thought, few-shot, and role-based prompting strategies',
-      price: 79.99,
-      rating: 4.8,
-      reviewCount: 423,
-      duration: '12h 15m',
-      students: 2156,
-      level: 'Intermediate',
-      imageUrl: 'https://images.unsplash.com/photo-1553877522-43269d4ea984?w=800&h=400&fit=crop',
-    },
-    {
-      id: '3',
-      title: 'Midjourney Prompting: From Beginner to Pro',
-      instructor: 'Emma Davis',
-      description: 'Create stunning AI artwork by mastering image generation prompts',
-      price: 59.99,
-      rating: 4.9,
-      reviewCount: 789,
-      duration: '10h 45m',
-      students: 4532,
-      level: 'All Levels',
-      imageUrl: 'https://images.unsplash.com/photo-1618005198919-d3d4b5a92ead?w=800&h=400&fit=crop',
-    },
-    {
-      id: '4',
-      title: 'Prompting for Developers: Code Generation',
-      instructor: 'David Park',
-      description: 'Write better code prompts for Copilot, Claude, and ChatGPT',
-      price: 89.99,
-      rating: 4.7,
-      reviewCount: 634,
-      duration: '15h 20m',
-      students: 2987,
-      level: 'Beginner',
-      imageUrl: 'https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=800&h=400&fit=crop',
-    },
-    {
-      id: '5',
-      title: 'Claude & GPT-4 Prompting Masterclass',
-      instructor: 'Jessica Lee',
-      description: 'Deep dive into prompting the most powerful LLMs for maximum results',
-      price: 94.99,
-      rating: 4.8,
-      reviewCount: 412,
-      duration: '18h 10m',
-      students: 1876,
-      level: 'Advanced',
-      imageUrl: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&h=400&fit=crop',
-    },
-    {
-      id: '6',
-      title: 'Prompting for Marketing & Content Creation',
-      instructor: 'Robert Taylor',
-      description: 'Craft prompts that generate compelling copy, ads, and social media content',
-      price: 69.99,
-      rating: 4.9,
-      reviewCount: 523,
-      duration: '9h 45m',
-      students: 3245,
-      level: 'Intermediate',
-      imageUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=400&fit=crop',
-    },
-    {
-      id: '7',
-      title: 'Stable Diffusion Prompt Craft',
-      instructor: 'Amy Zhang',
-      description: 'Master the art of writing prompts for Stable Diffusion image generation',
-      price: 64.99,
-      rating: 4.8,
-      reviewCount: 391,
-      duration: '11h 30m',
-      students: 2134,
-      level: 'Intermediate',
-      imageUrl: 'https://images.unsplash.com/photo-1547954575-855750c57bd3?w=800&h=400&fit=crop',
-    },
-    {
-      id: '8',
-      title: 'Responsible AI Prompting & Ethics',
-      instructor: 'Dr. James Wilson',
-      description: 'Learn ethical prompting practices, bias mitigation, and safe AI usage',
-      price: 54.99,
-      rating: 4.7,
-      reviewCount: 278,
-      duration: '7h 20m',
-      students: 1567,
-      level: 'All Levels',
-      imageUrl: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&h=400&fit=crop',
-    },
-    {
-      id: '9',
-      title: 'Building AI Chatbots with Prompt Design',
-      instructor: 'Chris Martinez',
-      description: 'Design system prompts and conversation flows for intelligent chatbots',
-      price: 74.99,
-      rating: 4.8,
-      reviewCount: 445,
-      duration: '13h 15m',
-      students: 2456,
-      level: 'Intermediate',
-      imageUrl: 'https://images.unsplash.com/photo-1531746790731-6c087fecd65a?w=800&h=400&fit=crop',
-    },
-  ];
+  // Data States
+  const [courses, setCourses] = useState<CourseProps[]>([])
+  const [loading, setLoading] = useState(true)
+
+  // Pagination States
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+
+  // Filter States
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
+  const [minVote, setMinVote] = useState<number>(0)
+  const [sortOption, setSortOption] = useState<string>("Popularity")
+
+  // Fetch API
+  useEffect(() => {
+    const fetchCoursesData = async () => {
+      setLoading(true)
+      try {
+        // Dịch UI Sort Option sang tham số API
+        let sortField = ""
+        let sortOrder: "asc" | "desc" = "desc"
+
+        if (sortOption === "Price: Low to High") {
+          sortField = "price"
+          sortOrder = "asc"
+        } else if (sortOption === "Price: High to Low") {
+          sortField = "price"
+          sortOrder = "desc"
+        } else if (sortOption === "Rating") {
+          sortField = "vote"
+          sortOrder = "desc"
+        }
+        // "Popularity" có thể dùng field mặc định hoặc để trống tùy cấu hình backend của bạn
+
+        const params: CourseParams = {
+          page: page,
+          size: 6,
+          category: selectedCategories.join(","), // Nối mảng category thành chuỗi "Cat1,Cat2"
+          sort_field: sortField,
+          sort_order: sortOrder,
+          min_vote: minVote,
+        }
+
+        const response = await getCourses(params)
+
+        // Bóc tách data từ response
+        const fetchedCourses = response.payload?.data || []
+        const totalItems = response.payload?.total || 0
+
+        setCourses(fetchedCourses)
+
+        // Tính tổng số trang
+        setTotalPages(Math.ceil(totalItems / 6))
+      } catch (error) {
+        console.error("Error fetching courses:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchCoursesData()
+  }, [page, selectedCategories, minVote, sortOption]) // Re-fetch khi một trong các state này thay đổi
+
+  // Filter Handlers
+  const handleCategoryToggle = (category: string) => {
+    setSelectedCategories((prev) =>
+      prev.includes(category)
+        ? prev.filter((c) => c !== category)
+        : [...prev, category],
+    )
+    setPage(1) // Reset về trang 1 khi đổi bộ lọc
+  }
+
+  const handleRatingChange = (rating: number) => {
+    setMinVote((prev) => (prev === rating ? 0 : rating))
+    setPage(1)
+  }
+
+  const handleSortChange = (sort: string) => {
+    setSortOption(sort)
+    setPage(1)
+  }
+
+  const handleClearFilters = () => {
+    setSelectedCategories([])
+    setMinVote(0)
+    setSortOption("Popularity")
+    setSearchQuery("")
+    setPage(1)
+  }
+
+  // Frontend Search Filter (Dành cho Search Query Client-side)
+  const filteredCourses = courses.filter((course) =>
+    course.title.toLowerCase().includes(searchQuery.toLowerCase()),
+  )
 
   return (
     <div className="min-h-screen">
@@ -167,7 +157,16 @@ export function CoursesPage() {
           {/* Sidebar */}
           {showFilters && (
             <aside className="hidden md:block flex-shrink-0">
-              <FilterSidebar type="courses" />
+              <FilterSidebar
+                type="courses"
+                selectedCategories={selectedCategories}
+                onCategoryToggle={handleCategoryToggle}
+                selectedRating={minVote}
+                onRatingChange={handleRatingChange}
+                selectedSort={sortOption}
+                onSortChange={handleSortChange}
+                onClear={handleClearFilters}
+              />
             </aside>
           )}
 
@@ -175,25 +174,95 @@ export function CoursesPage() {
           <main className="flex-1">
             <div className="mb-6 flex items-center justify-between">
               <p className="text-sm text-muted-foreground">
-                Showing <span className="font-medium text-foreground">{courses.length}</span> courses
+                Showing{" "}
+                <span className="font-medium text-foreground">
+                  {/* Trong thực tế nếu search backend thì chỗ này hiển thị totalItems, ở đây mình hiển thị length của mảng hiện tại */}
+                  {filteredCourses.length}
+                </span>{" "}
+                courses
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {courses.map((course) => (
-                <CourseCard key={course.id} {...course} />
-              ))}
-            </div>
+            {loading ? (
+              <div className="flex justify-center items-center py-20">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredCourses.map((course) => (
+                  <CourseCard
+                    key={course.courseId}
+                    id={course.courseId.toString()}
+                    title={course.title}
+                    instructor={course.ownedBy}
+                    description={course.description}
+                    price={course.price}
+                    rating={course.vote}
+                    reviewCount={0}
+                    duration={`${course.duration}m`} // Mình đổi thành m vì duration trong DB của bạn có vẻ là phút (vd: 110)
+                    students={course.purchasedCount}
+                    level={course.category}
+                    imageUrl={course.coverUrl}
+                  />
+                ))}
+              </div>
+            )}
 
-            {/* Load More */}
-            <div className="mt-12 text-center">
-              <Button variant="outline" size="lg">
-                Load More Courses
-              </Button>
-            </div>
+            {/* Pagination */}
+            {!loading && totalPages > 1 && (
+              <Pagination className="mt-12">
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      onClick={() => setPage((p) => Math.max(1, p - 1))}
+                      className={
+                        page === 1
+                          ? "pointer-events-none opacity-50"
+                          : "cursor-pointer"
+                      }
+                    />
+                  </PaginationItem>
+
+                  {[...Array(totalPages)].map((_, i) => {
+                    const pageNumber = i + 1
+                    return (
+                      <PaginationItem key={pageNumber}>
+                        <PaginationLink
+                          onClick={() => setPage(pageNumber)}
+                          isActive={page === pageNumber}
+                          className="cursor-pointer"
+                        >
+                          {pageNumber}
+                        </PaginationLink>
+                      </PaginationItem>
+                    )
+                  })}
+
+                  <PaginationItem>
+                    <PaginationNext
+                      onClick={() =>
+                        setPage((p) => Math.min(totalPages, p + 1))
+                      }
+                      className={
+                        page === totalPages
+                          ? "pointer-events-none opacity-50"
+                          : "cursor-pointer"
+                      }
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            )}
+
+            {/* Empty State */}
+            {!loading && courses.length === 0 && (
+              <p className="mt-12 text-center text-muted-foreground">
+                No courses found matching your criteria.
+              </p>
+            )}
           </main>
         </div>
       </div>
     </div>
-  );
+  )
 }

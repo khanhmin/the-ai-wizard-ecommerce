@@ -245,9 +245,7 @@ export function LandingPage() {
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-secondary/5 py-20 md:py-32">
-        {/* Background Pattern */}
         <div className="absolute inset-0 opacity-5 pointer-events-none">
           <div
             className="absolute inset-y-0 inset-x-8 md:inset-x-16"
@@ -259,9 +257,8 @@ export function LandingPage() {
           ></div>
         </div>
 
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-15">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Left: Text Content */}
             <div className="text-center lg:text-left">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary mb-6">
                 <Wand2 className="h-4 w-4" />
@@ -371,7 +368,7 @@ export function LandingPage() {
       </section>
 
       {/* Featured Prompts */}
-      <section className="py-20">
+      <section className="py-20 px-15">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between mb-10">
             <div>
@@ -400,7 +397,7 @@ export function LandingPage() {
       </section>
 
       {/* Featured Courses */}
-      <section className="py-20 bg-muted/30">
+      <section className="py-20 px-15 bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between mb-10">
             <div>

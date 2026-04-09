@@ -1,59 +1,66 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router';
-import { Button } from '../components/ui/button';
-import { Card } from '../components/ui/card';
-import { Input } from '../components/ui/input';
-import { Separator } from '../components/ui/separator';
-import { X, ShoppingBag, Tag } from 'lucide-react';
+import { useState, useEffect } from "react"
+import { useNavigate } from "react-router"
+import { Button } from "../components/ui/button"
+import { Card } from "../components/ui/card"
+import { Input } from "../components/ui/input"
+import { Separator } from "../components/ui/separator"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../components/ui/alert-dialog"
+import { X, ShoppingBag, Tag, Loader2 } from "lucide-react"
+import { getCart, removeItem, CartProps } from "../api/cart"
 
 export function CartPage() {
-  const navigate = useNavigate();
-  const [couponCode, setCouponCode] = useState('');
+  const navigate = useNavigate()
+  const [couponCode, setCouponCode] = useState("")
+  const [cartItems, setCartItems] = useState<CartProps[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
-  const [cartItems, setCartItems] = useState([
-    {
-      id: '1',
-      type: 'prompt',
-      title: 'Professional Email Writer',
-      category: 'Writing',
-      price: 12.99,
-      quantity: 1,
-    },
-    {
-      id: '2',
-      type: 'course',
-      title: 'Master ChatGPT Prompt Engineering',
-      category: 'Course',
-      price: 49.99,
-      quantity: 1,
-    },
-    {
-      id: '3',
-      type: 'prompt',
-      title: 'Social Media Content Generator',
-      category: 'Marketing',
-      price: 15.99,
-      quantity: 1,
-    },
-  ]);
+  // Fetch cart data on component mount
+  useEffect(() => {
+    fetchCartData()
+  }, [])
 
-  const removeItem = (id: string) => {
-    setCartItems(cartItems.filter((item) => item.id !== id));
-  };
+  const fetchCartData = async () => {
+    try {
+      setIsLoading(true)
+      const response = await getCart()
+      setCartItems(response.payload || [])
+    } catch (error) {
+      console.error("Failed to fetch cart items:", error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
-  const updateQuantity = (id: string, delta: number) => {
-    setCartItems(
-      cartItems.map((item) =>
-        item.id === id
-          ? { ...item, quantity: Math.max(1, item.quantity + delta) }
-          : item
-      )
-    );
-  };
+  const handleRemoveItem = async (itemId: number) => {
+    try {
+      await removeItem(itemId)
+      fetchCartData()
+    } catch (error) {
+      console.error("Failed to remove item:", error)
+    }
+  }
 
-  const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const tax = subtotal * 0.1;
-  const total = subtotal + tax;
+  const subtotal = cartItems.reduce((sum, item) => sum + item.price, 0)
+  const tax = subtotal * 0.1
+  const total = subtotal + tax
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen py-12">
@@ -71,52 +78,75 @@ export function CartPage() {
             <p className="text-muted-foreground mb-6">
               Start exploring our prompts and courses to add items to your cart.
             </p>
-            <Button onClick={() => navigate('/prompts')}>Browse Prompts</Button>
+            <Button onClick={() => navigate("/prompts")}>Browse Prompts</Button>
           </Card>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Cart Items */}
             <div className="lg:col-span-2 space-y-4">
               {cartItems.map((item) => (
-                <Card key={item.id} className="p-6">
+                <Card key={item.itemId} className="p-6">
                   <div className="flex gap-4">
+                    {item.coverUrl && (
+                      <img
+                        src={item.coverUrl}
+                        alt={item.title}
+                        onClick={() => navigate(`/courses/${item.itemId}`)}
+                        className="w-24 h-24 object-cover rounded-md cursor-pointer hover:opacity-80 transition-opacity"
+                      />
+                    )}
+
                     <div className="flex-1">
                       <div className="flex items-start justify-between mb-2">
                         <div>
-                          <h3 className="font-semibold text-lg mb-1">{item.title}</h3>
-                          <p className="text-sm text-muted-foreground">{item.category}</p>
+                          <h3
+                            className="font-semibold text-lg mb-1 cursor-pointer hover:text-primary transition-colors inline-block"
+                            onClick={() => navigate(`/courses/${item.itemId}`)}
+                          >
+                            {item.title}
+                          </h3>
+                          <p className="text-sm text-muted-foreground">
+                            {item.category}
+                          </p>
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => removeItem(item.id)}
-                          className="text-destructive hover:text-destructive"
-                        >
-                          <X className="h-5 w-5" />
-                        </Button>
+
+                        {/* THÊM ALERT DIALOG CHO NÚT XÓA */}
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                            >
+                              <X className="h-5 w-5" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Remove item</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to remove "{item.title}"
+                                from your cart?
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleRemoveItem(item.itemId)}
+                                className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                              >
+                                Remove
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
 
-                      <div className="flex items-center justify-between mt-4">
-                        <div className="flex items-center gap-3">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => updateQuantity(item.id, -1)}
-                            disabled={item.quantity === 1}
-                          >
-                            -
-                          </Button>
-                          <span className="w-8 text-center">{item.quantity}</span>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => updateQuantity(item.id, 1)}
-                          >
-                            +
-                          </Button>
-                        </div>
-                        <div className="text-xl font-bold">
-                          ${(item.price * item.quantity).toFixed(2)}
+                      <div className="flex items-center justify-end mt-4">
+                        <div className="text-right flex flex-col justify-end">
+                          <div className="text-xl font-bold">
+                            ${item.price.toFixed(2)}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -127,7 +157,7 @@ export function CartPage() {
               {/* Continue Shopping */}
               <Button
                 variant="outline"
-                onClick={() => navigate('/prompts')}
+                onClick={() => navigate("/courses")}
                 className="w-full"
               >
                 Continue Shopping
@@ -176,7 +206,7 @@ export function CartPage() {
                 <Button
                   className="w-full bg-primary hover:bg-primary/90"
                   size="lg"
-                  onClick={() => navigate('/checkout')}
+                  onClick={() => navigate("/checkout")}
                 >
                   Proceed to Checkout
                 </Button>
@@ -190,5 +220,5 @@ export function CartPage() {
         )}
       </div>
     </div>
-  );
+  )
 }

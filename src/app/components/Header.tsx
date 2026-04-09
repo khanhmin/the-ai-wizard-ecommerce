@@ -13,10 +13,11 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Badge } from './ui/badge';
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { forceLogout } from '../api/client';
 
 export function Header() {
   const navigate = useNavigate();
-  const { user, isAuthenticated, logout } = useAuth();
+  const user = JSON.parse(localStorage.getItem('user')||'{}')
   const [cartCount] = useState(3);
 
   return (
@@ -45,12 +46,6 @@ export function Header() {
             Courses
           </Link>
           <Link
-            to="/pricing"
-            className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors"
-          >
-            Pricing
-          </Link>
-          <Link
             to="/community"
             className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors"
           >
@@ -76,7 +71,7 @@ export function Header() {
           </Button>
 
           {/* User Menu */}
-          {isAuthenticated ? (
+          {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-10 w-10 rounded-full p-0">
@@ -117,7 +112,7 @@ export function Header() {
                   <span>Purchase History</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={logout} className="cursor-pointer py-2.5 text-destructive focus:text-destructive">
+                <DropdownMenuItem onClick={forceLogout} className="cursor-pointer py-2.5 text-destructive focus:text-destructive">
                   <LogOut className="mr-3 h-4 w-4" />
                   <span>Logout</span>
                 </DropdownMenuItem>

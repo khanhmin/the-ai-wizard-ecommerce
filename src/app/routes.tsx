@@ -11,7 +11,6 @@ import { CartPage } from './pages/CartPage';
 import { CheckoutPage } from './pages/CheckoutPage';
 import { SuccessPage } from './pages/SuccessPage';
 import { PurchaseHistoryPage } from './pages/PurchaseHistoryPage';
-import { PricingPage } from './pages/PricingPage';
 import { CommunityPage } from './pages/CommunityPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { AboutPage } from './pages/AboutPage';
@@ -30,7 +29,6 @@ export const router = createBrowserRouter([
       { path: 'prompts/:id', Component: PromptDetailPage },
       { path: 'courses', Component: CoursesPage },
       { path: 'courses/:id', Component: CourseDetailPage },
-      { path: 'pricing', Component: PricingPage },
       { path: 'community', Component: CommunityPage },
       { path: 'cart', Component: CartPage },
       { path: 'checkout', Component: CheckoutPage },
