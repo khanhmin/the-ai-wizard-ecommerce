@@ -1,33 +1,33 @@
 import axios, { InternalAxiosRequestConfig, AxiosError } from "axios"
 
 export const apiClientUser = axios.create({
-  baseURL: `http://localhost:3000/api/users/`,
+  baseURL: `https://prompt-wizzard-be.onrender.com/api/users/`,
   headers: {
     "Content-Type": "application/json",
   },
 })
 
 export const apiClientCourse = axios.create({
-  baseURL: `http://localhost:3000/api/courses/`,
+  baseURL: `https://prompt-wizzard-be.onrender.com/api/courses/`,
   headers: {
     "Content-Type": "application/json",
   },
 })
 
 export const apiClientPrompt = axios.create({
-  baseURL: `http://localhost:3000/api/prompts/`,
+  baseURL: `https://prompt-wizzard-be.onrender.com/api/prompts/`,
   headers: {
     "Content-Type": "application/json",
   },
 })
 export const apiClientCart = axios.create({
-  baseURL: `http://localhost:3000/api/cart/`,
+  baseURL: `https://prompt-wizzard-be.onrender.com/api/cart/`,
   headers: {
     "Content-Type": "application/json",
   },
 })
 export const apiClientOrder = axios.create({
-  baseURL: `http://localhost:3000/api/orders/`,
+  baseURL: `https://prompt-wizzard-be.onrender.com/api/orders/`,
   headers: {
     "Content-Type": "application/json",
   },
