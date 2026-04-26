@@ -18,7 +18,7 @@ import {
 
 // Thay bằng Publishable Key của bạn
 const stripePromise = loadStripe(
-  "pk_test_51TJEha2KRsUwELSZNlDdDjKkD5j6e6siRTHnhzHcOcEgKmVpgLmN0SwGRIGjcoVGDJXgJ69Nn94j40zrzcVRMhJS00W2pU4Z1Y",
+  "pk_test_51TQNyoRtGEksMAemEJGSdoQkwm0OqYGAqynUqntQ74qfDGxVCFDoo0FdLtHZQ7aiBnLXTyutYol4IN60ppKPv5aq00joxiFOWO",
 )
 
 const CheckoutForm = ({
